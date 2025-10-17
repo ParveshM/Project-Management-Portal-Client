@@ -1,11 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { login, logout } from "../middleware/auth.middleware";
 
-// Define the initial state using that type
 const initialState = {
   id: "",
   name: "",
   username: "",
+  role: "",
+  isAuthenticated: false,
 } as const;
 
 export const userSlice = createSlice({

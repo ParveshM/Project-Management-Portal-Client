@@ -11,8 +11,10 @@ import {
 import { navLinks } from "@/constants";
 import { Icon } from "@iconify/react";
 import MobileHeader from "./MobileNavbar";
+import { useAppSelector } from "@/lib/redux/hooks";
 
 const Navbar = () => {
+  const user = useAppSelector((state) => state.user);
   return (
     <header className="flex items-center justify-between gap-2 h-16 p-4 border-b fixed inset-x-0 z-50 backdrop-blur-3xl">
       <div></div>
@@ -34,7 +36,7 @@ const Navbar = () => {
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="mr-3">
-            <DropdownMenuLabel>Hello, Admin</DropdownMenuLabel>
+            <DropdownMenuLabel>Hello, {user.name}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer">
               Logout

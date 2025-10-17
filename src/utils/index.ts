@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import { jwtDecode, type JwtPayload } from "jwt-decode";
 export const setItem = (key: string, value: string) =>
   localStorage?.setItem(key, value);
@@ -21,4 +22,12 @@ export const isTokenExpired = (token: string) => {
   const decodedToken = jwtDecode(token) as JwtPayload;
   const now = Date.now() / 1000;
   return now > (decodedToken?.exp || 0);
+};
+
+export const handleApiError = (error: any) => {
+  if (error instanceof AxiosError) {
+    return error.response?.data;
+  }
+
+  return error;
 };

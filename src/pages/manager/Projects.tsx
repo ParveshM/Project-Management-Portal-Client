@@ -1,86 +1,93 @@
 import AddProject from "@/components/pages/Projects/AddProject";
 import { Button } from "@/components/ui/button";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import DataTable, { type TableHeader } from "@/components/ui/DataTable";
 import { Pagination } from "@/components/ui/Pagination";
 import SearchBar from "@/components/ui/SearchBar";
+import { Spinner } from "@/components/ui/spinner";
 import useDebounce from "@/hooks/useDebounce";
+import type { Project } from "@/types";
+import { handleApiError } from "@/utils";
+import { adminAPI } from "@/utils/api/admin";
 import { Icon } from "@iconify/react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
-const data = [
-  {
-    name: "Parvesh M",
-    username: "parvesh123",
-    email: "parvesh@mail.com",
-    role: "Admin",
-    manager: { name: "N/A" },
-    joinedAt: "2025-10-10T08:30:00Z",
-  },
-  {
-    name: "Maya S",
-    username: "mayaS",
-    email: "maya@mail.com",
-    role: "Manager",
-    manager: { name: "Parvesh M" },
-    joinedAt: "2025-10-12T10:15:00Z",
-  },
-  {
-    name: "Alex K",
-    username: "alexk",
-    email: "alex@mail.com",
-    role: "User",
-    manager: { name: "Maya S" },
-    joinedAt: "2025-10-13T12:45:00Z",
-  },
-  {
-    name: "Sara L",
-    username: "saraL",
-    email: "sara@mail.com",
-    role: "User",
-    manager: { name: "Maya S" },
-    joinedAt: "2025-10-14T09:20:00Z",
-  },
-];
-const header: TableHeader<(typeof data)[0]>[] = [
-  { label: "Name", accessor: "name" },
-  { label: "Username", accessor: "username" },
-  { label: "Email", accessor: "email" },
-  { label: "Role", accessor: "role" },
-  {
-    label: "Manager",
-    accessor: "manager",
-    render: (manager: { name: string }) => manager?.name || "-",
-  },
-  {
-    label: "Joined Date",
-    accessor: "joinedAt",
-    render: (row: any) => new Date(row.joinedAt).toLocaleDateString(),
-  },
-  {
-    label: "Actions",
-    accessor: "actions",
-    render() {
-      return (
-        <div className="flex items-center gap-2">
-          <Button className="rounded-sm h-8 bg-primary/10 hover:bg-primary/20 text-primary">
-            <Pencil className="w-4 h-4" />
-          </Button>
-          <Button
-            variant={"destructive"}
-            className="rounded-sm h-8 text-destructive bg-destructive/10 hover:bg-destructive/20 "
-          >
-            <Icon icon="mdi:bin-outline" className="size-5" />
-          </Button>
-        </div>
-      );
-    },
-  },
-];
+import { toast } from "sonner";
 
 const Projects = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const debounced = useDebounce(search);
+  const { data, isLoading } = useQuery({
+    queryKey: ["projects", debounced, page],
+    queryFn: () => adminAPI.getAllprojects({ q: debounced, page, limit: 10 }),
+  });
+  const queryclient = useQueryClient();
+  const { mutate, isPending } = useMutation({
+    mutationFn: adminAPI.deleteProject,
+    onSuccess: () => {
+      queryclient.invalidateQueries({ queryKey: ["projects"] });
+      toast.success("Project deleted successfully");
+    },
+    onError: (err) => {
+      const e = handleApiError(err);
+      toast.error(e?.message);
+    },
+  });
+  const header: TableHeader<Project>[] = [
+    {
+      label: "Date",
+      accessor: "createdAt",
+      render: (row: any) => new Date(row.createdAt).toLocaleDateString(),
+    },
+    {
+      label: "Name",
+      accessor: "name",
+    },
+    {
+      label: "Start Date",
+      accessor: "startDate",
+      render: (row: any) => new Date(row.startDate).toLocaleDateString(),
+    },
+    {
+      label: "End Date",
+      accessor: "endDate",
+      render: (row: any) => new Date(row.startDate).toLocaleDateString(),
+    },
+    {
+      label: "Status",
+      accessor: "status",
+    },
+
+    {
+      label: "Actions",
+      accessor: "actions",
+      render(row) {
+        return (
+          <div className="flex items-center gap-2 w-fit">
+            <AddProject oldData={row}>
+              <Button className="rounded-sm h-8 bg-primary/10 hover:bg-primary/20 text-primary">
+                <Pencil className="w-4 h-4" />
+              </Button>
+            </AddProject>
+            <ConfirmationModal
+              onConfirm={() => mutate(row._id)}
+              onCancel={() => {}}
+            >
+              <Button
+                disabled={isPending}
+                variant={"destructive"}
+                className="rounded-sm h-8 text-destructive bg-destructive/10 hover:bg-destructive/20 "
+              >
+                <Icon icon="mdi:bin-outline" className="size-5" />
+              </Button>
+            </ConfirmationModal>
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-3 p-2">
@@ -90,12 +97,25 @@ const Projects = () => {
         </h1>
         <div className="flex gap-2">
           <SearchBar value={search} setValue={setSearch} />
-          <AddProject />
+          <AddProject>
+            <Button className=" rounded-sm font-medium px-4 h-8">
+              Add Project
+            </Button>
+          </AddProject>
         </div>
       </div>
 
-      <DataTable header={header} data={data} />
-      <Pagination totalPages={10} setCurrentPage={(page) => setPage(page)} />
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <>
+          <DataTable header={header} data={data?.data ?? []} />
+          <Pagination
+            totalItems={data?.count ?? 0}
+            setCurrentPage={(page) => setPage(page)}
+          />
+        </>
+      )}
     </div>
   );
 };

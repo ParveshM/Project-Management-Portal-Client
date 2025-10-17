@@ -40,7 +40,7 @@ const DataTable = <T,>({ header = [], data = [] }: Props<T>) => {
                 {header.map((h, j) => (
                   <td
                     key={j}
-                    className="px-4 py-2 text-foreground/90 border-b border-border"
+                    className="px-4 py-2 text-foreground/90 border-b border-border capitalize"
                   >
                     {h.render
                       ? h.render(row)

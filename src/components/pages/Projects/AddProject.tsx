@@ -18,40 +18,44 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import type { Project } from "@/types";
+import { handleApiError } from "@/utils";
+import { adminAPI } from "@/utils/api/admin";
 import { projectSchema } from "@/utils/validation";
+import { useQueryClient } from "@tanstack/react-query";
 import { ErrorMessage, Field, Form, Formik } from "formik";
+import { useState } from "react";
+import { toast } from "sonner";
 
-type InitalValue = Pick<
+type InitialValue = Pick<
   Project,
   "name" | "description" | "status" | "startDate" | "endDate"
 >;
 type Props = {
   oldData?: Project;
+  children: React.ReactNode;
 };
 
-const AddProject = ({ oldData }: Props) => {
+const AddProject = ({ oldData, children }: Props) => {
+  const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
   const isEditing = !!oldData?._id;
-  const intialValue: InitalValue = {
+  const intialValue: InitialValue = {
     name: oldData?.name || "",
     description: oldData?.description || "",
-    startDate: oldData?.startDate || "",
-    endDate: oldData?.endDate || "",
+    startDate: oldData?.startDate?.substring(0, 10) || "",
+    endDate: oldData?.endDate?.substring(0, 10) || "",
     status: oldData?.status || "pending",
   };
 
   const renderText = (isSubmitting: boolean) => {
     if (isEditing) {
-      return isSubmitting ? "Updating..." : "Update";
+      return isSubmitting ? "Saving..." : "Save";
     }
     return isSubmitting ? "Creating..." : "Create";
   };
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className=" rounded-sm font-medium px-4 h-8">
-          Add Project
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-[95dvh] overflow-y-auto !max-w-md">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Update" : "Create"} project</DialogTitle>
@@ -60,7 +64,27 @@ const AddProject = ({ oldData }: Props) => {
 
         <Formik
           initialValues={intialValue}
-          onSubmit={(v) => {}}
+          onSubmit={async (values, { setSubmitting, resetForm }) => {
+            try {
+              if (isEditing) {
+                await adminAPI.updateProject(oldData?._id as string, values);
+                queryClient.invalidateQueries({ queryKey: ["projects"] });
+                toast.success("Project updated successfully");
+                setOpen(false);
+                return;
+              }
+              await adminAPI.createProject(values);
+              queryClient.invalidateQueries({ queryKey: ["projects"] });
+              setOpen(false);
+              toast.success("Project created successfully");
+              resetForm();
+            } catch (error) {
+              const e = handleApiError(error);
+              toast.error(e?.message);
+            } finally {
+              setSubmitting(false);
+            }
+          }}
           validationSchema={projectSchema}
         >
           {({ isSubmitting, values, setFieldValue }) => (
@@ -154,7 +178,11 @@ const AddProject = ({ oldData }: Props) => {
               </div>
 
               <div className="flex justify-end items-end mt-2">
-                <Button className="rounded-sm px-4 h-8" disabled={isSubmitting}>
+                <Button
+                  type="submit"
+                  className="rounded-sm px-4 h-8"
+                  disabled={isSubmitting}
+                >
                   {renderText(isSubmitting)}
                 </Button>
               </div>

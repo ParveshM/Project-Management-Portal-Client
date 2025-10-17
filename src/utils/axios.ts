@@ -1,9 +1,9 @@
 import axios from "axios";
 import { ENV } from "./config/ENV";
 import { getItem, isTokenExpired } from ".";
-
-export const authInstance = axios.create({ baseURL: ENV.BASE_URL });
-export const publicInstance = axios.create({ baseURL: ENV.BASE_URL });
+const baseURL = `${ENV.BASE_URL}/api`;
+export const authInstance = axios.create({ baseURL });
+export const publicInstance = axios.create({ baseURL });
 
 let onSessionExpired: null | (() => void) = null;
 

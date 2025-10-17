@@ -17,20 +17,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { User } from "@/types";
+import { handleApiError } from "@/utils";
+import { adminAPI } from "@/utils/api/admin";
+import { authAPI } from "@/utils/api/auth";
 import { userSchema } from "@/utils/validation";
+import { useQueryClient } from "@tanstack/react-query";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 type InitalValue = Pick<User, "name" | "username" | "role"> & {
   password: string;
 };
 type Props = {
   oldData?: User;
+  children: React.ReactNode;
 };
 
-const AddUser = ({ oldData }: Props) => {
+const AddUser = ({ oldData, children }: Props) => {
+  const [open, setOpen] = useState(false);
   const [showPass, setShowPass] = useState(false);
+  const queryClient = useQueryClient();
   const isEditing = !!oldData?._id;
   const intialValue: InitalValue = {
     name: oldData?.name || "",
@@ -46,10 +54,8 @@ const AddUser = ({ oldData }: Props) => {
     return isSubmitting ? "Creating..." : "Create";
   };
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className=" rounded-sm font-medium px-4 h-8">Add User</Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-[95dvh] overflow-y-auto !max-w-md">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Update" : "Create"} User</DialogTitle>
@@ -58,7 +64,27 @@ const AddUser = ({ oldData }: Props) => {
 
         <Formik
           initialValues={intialValue}
-          onSubmit={(v) => {}}
+          onSubmit={async (values, { setSubmitting, resetForm }) => {
+            try {
+              if (isEditing) {
+                await adminAPI.updateUser(oldData?._id as string, values);
+                queryClient.invalidateQueries({ queryKey: ["users"] });
+                toast.success("User updated successfully");
+                setOpen(false);
+                return;
+              }
+              await authAPI.registerUser(values);
+              queryClient.invalidateQueries({ queryKey: ["users"] });
+              setOpen(false);
+              toast.success("User created successfully");
+              resetForm();
+            } catch (error) {
+              const e = handleApiError(error);
+              toast.error(e?.message);
+            } finally {
+              setSubmitting(false);
+            }
+          }}
           validationSchema={userSchema}
         >
           {({ isSubmitting, values, setFieldValue }) => (
@@ -129,7 +155,11 @@ const AddUser = ({ oldData }: Props) => {
                 </Select>
               </div>
               <div className="flex justify-end items-end mt-2">
-                <Button className="rounded-sm px-4 h-8" disabled={isSubmitting}>
+                <Button
+                  type="submit"
+                  className="rounded-sm px-4 h-8"
+                  disabled={isSubmitting}
+                >
                   {renderText(isSubmitting)}
                 </Button>
               </div>

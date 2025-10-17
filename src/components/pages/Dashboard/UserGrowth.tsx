@@ -65,29 +65,21 @@ const getOptions = (theme: string): ApexOptions => ({
     },
   },
 });
-const UserGrowth = () => {
-  //   const { theme } = useTheme();
+const UserGrowth = ({ data }: any) => {
+  console.log(data, "asdfj");
   const chartData = useMemo(() => {
     return [
       {
         name: "Users",
         data: getChartData({
-          data: [
-            { date: "2025-10-10", count: 150 },
-            { date: "2025-10-11", count: 230 },
-            { date: "2025-10-12", count: 180 },
-            { date: "2025-10-13", count: 290 },
-            { date: "2025-10-14", count: 250 },
-            { date: "2025-10-15", count: 320 },
-            { date: "2025-10-16", count: 410 },
-          ],
+          data: data || [],
 
           dateKey: "date",
           labelKey: "count",
         }),
       },
     ];
-  }, []);
+  }, [data]);
   const options = getOptions("light");
   return (
     <div className="h-fit min-h-[260px] sm:min-h-[300px] py-3 bg-primary/5 p-3 rounded-sm">

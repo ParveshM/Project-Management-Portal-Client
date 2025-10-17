@@ -2,14 +2,16 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import ReactPaginate from "react-paginate";
 
 export const Pagination = ({
-  totalPages,
+  totalItems,
+  itemsPerPage = 10,
   setCurrentPage,
 }: {
-  totalPages: number;
+  totalItems: number;
+  itemsPerPage?: number;
   setCurrentPage: (page: number) => void;
 }) => (
   <ReactPaginate
-    pageCount={totalPages}
+    pageCount={Math.ceil(totalItems / itemsPerPage)}
     pageRangeDisplayed={3}
     marginPagesDisplayed={1}
     onPageChange={({ selected }) => setCurrentPage(selected + 1)}

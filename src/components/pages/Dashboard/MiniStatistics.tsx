@@ -16,7 +16,7 @@ export const Ministatistics: FC<Props> = ({ title, value, className }) => {
   return (
     <Card className={clsx(className, "rounded-md")}>
       <CardHeader>
-        <CardDescription className="text-base sm:text-lg">
+        <CardDescription className="text-base sm:text-lg capitalize">
           {title}
         </CardDescription>
         <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">

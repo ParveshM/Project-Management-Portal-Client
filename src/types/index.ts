@@ -4,7 +4,7 @@ export const USER_ROLES = {
   MANAGER: "manager",
 } as const;
 
-type ROLES = (typeof USER_ROLES)[keyof typeof USER_ROLES];
+export type ROLES = (typeof USER_ROLES)[keyof typeof USER_ROLES];
 
 export type AuthPayload = {
   username: string;
@@ -17,7 +17,7 @@ export type User = {
   username: string;
   role: ROLES;
   createdBy?: User;
-  createdAt?: string;
+  createdAt: string;
 };
 export type ProjectStatus = "pending" | "in-progress" | "completed";
 export type Project = {
@@ -30,4 +30,24 @@ export type Project = {
   managerId: User;
   members?: User[];
   createdAt: string;
+};
+
+export type ProjectStatistics = {
+  totalProject: {
+    count: number;
+  }[];
+  projectByStatus: {
+    count: number;
+    status: Project["status"];
+  }[];
+};
+
+export type UserStatistics = {
+  dailyCounts: { count: number; date: string }[];
+  totalCount: number;
+};
+
+export type PaginatedApiResponse<T> = {
+  data: T[];
+  count: number;
 };
