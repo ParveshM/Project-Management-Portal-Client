@@ -1,26 +1,33 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { login, logout } from "../middleware/auth.middleware";
+import { login } from "../middleware/auth.middleware";
+import type { ROLES } from "@/types";
 
-const initialState = {
-  id: "",
-  name: "",
-  username: "",
-  role: "",
+export type User = {
+  id: string | null;
+  name: string | null;
+  username: string | null;
+  role: ROLES | null;
+  isAuthenticated: boolean;
+};
+const initialState: User = {
+  id: null,
+  name: null,
+  username: null,
+  role: null,
   isAuthenticated: false,
-} as const;
+};
 
 export const userSlice = createSlice({
   name: "user",
   initialState,
-  reducers: {},
+  reducers: {
+    logout: () => initialState,
+  },
   extraReducers(builder) {
     builder.addCase(login.fulfilled, (state, action) => {
       Object.assign(state, action.payload);
     });
-    builder.addCase(logout.rejected, (state) => {
-      Object.assign(state, initialState);
-    });
   },
 });
-
+export const { logout } = userSlice.actions;
 export default userSlice.reducer;

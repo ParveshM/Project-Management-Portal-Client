@@ -16,6 +16,7 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
+import { useAppSelector } from "@/lib/redux/hooks";
 import type { User } from "@/types";
 import { handleApiError } from "@/utils";
 import { adminAPI } from "@/utils/api/admin";
@@ -39,6 +40,8 @@ const AddUser = ({ oldData, children }: Props) => {
   const [open, setOpen] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const queryClient = useQueryClient();
+  const { role } = useAppSelector((state) => state.user);
+
   const isEditing = !!oldData?._id;
   const intialValue: InitalValue = {
     name: oldData?.name || "",
@@ -135,25 +138,27 @@ const AddUser = ({ oldData, children }: Props) => {
                 <ErrorMessage name="password" component="p" className="error" />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="role"> Role</Label>
-                <Select
-                  defaultValue="user"
-                  value={values.role}
-                  onValueChange={(v) => setFieldValue("role", v)}
-                >
-                  <SelectTrigger className="w-full rounded-sm capitalize">
-                    <SelectValue placeholder="User Role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {["user", "manager"].map((item, i) => (
-                      <SelectItem key={i} value={item} className="capitalize">
-                        {item}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {role === "admin" && (
+                <div className="space-y-2">
+                  <Label htmlFor="role"> Role</Label>
+                  <Select
+                    defaultValue="user"
+                    value={values.role}
+                    onValueChange={(v) => setFieldValue("role", v)}
+                  >
+                    <SelectTrigger className="w-full rounded-sm capitalize">
+                      <SelectValue placeholder="User Role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {["user", "manager"].map((item, i) => (
+                        <SelectItem key={i} value={item} className="capitalize">
+                          {item}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="flex justify-end items-end mt-2">
                 <Button
                   type="submit"

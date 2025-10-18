@@ -7,8 +7,7 @@ import {
 } from "@/components/ui/sheet";
 import { useState } from "react";
 import { Icon } from "@iconify/react";
-import { navLinks } from "@/constants";
-import { NavItem } from "@/components/pages/Layout/NavItem";
+import NavigationLinks from "./Links";
 
 const MobileNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,11 +25,10 @@ const MobileNavbar = () => {
           tabIndex={-1}
           side="top"
         >
-          <ul className="flex flex-col items-center gap-2 p-5">
-            {navLinks.map((link, i) => (
-              <NavItem key={i} {...link} onClick={() => setIsOpen(false)} />
-            ))}
-          </ul>
+          <NavigationLinks
+            className="!flex md:hidden !flex-col items-center gap-2 p-5"
+            onClick={() => setIsOpen(false)}
+          />
         </SheetContent>
       </Sheet>
     </div>

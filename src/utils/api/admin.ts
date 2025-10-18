@@ -18,7 +18,9 @@ export const adminAPI = {
     return data?.data as ProjectStatistics;
   },
 
-  getAllprojects: async (param: PaginatePayload & { q?: string }) => {
+  getAllprojects: async (
+    param: PaginatePayload & { q?: string; status: string }
+  ) => {
     const { data } = await authInstance.get("/projects", { params: param });
     return data as PaginatedApiResponse<Project>;
   },

@@ -66,7 +66,6 @@ const getOptions = (theme: string): ApexOptions => ({
   },
 });
 const UserGrowth = ({ data }: any) => {
-  console.log(data, "asdfj");
   const chartData = useMemo(() => {
     return [
       {

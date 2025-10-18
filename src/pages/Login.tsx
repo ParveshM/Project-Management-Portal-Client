@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { USER_ROLES, type AuthPayload } from "@/types";
+import { type AuthPayload } from "@/types";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { loginValidation } from "@/utils/validation";
 import { useState } from "react";
@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { handleApiError } from "@/utils";
 import { login } from "@/lib/redux/middleware/auth.middleware";
 import { useNavigate } from "react-router-dom";
+import { USER_ROLES } from "@/constants";
 
 function Login() {
   const [showPass, setShowPass] = useState(false);

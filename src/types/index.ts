@@ -1,8 +1,4 @@
-export const USER_ROLES = {
-  ADMIN: "admin",
-  USER: "user",
-  MANAGER: "manager",
-} as const;
+import type { USER_ROLES } from "@/constants";
 
 export type ROLES = (typeof USER_ROLES)[keyof typeof USER_ROLES];
 

@@ -159,6 +159,9 @@
   .error {
     @apply text-destructive text-sm;
   }
+  .paginate-li > a {
+    @apply !block px-3 py-1;
+  }
 }
 
 * {

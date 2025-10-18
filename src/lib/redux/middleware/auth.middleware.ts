@@ -1,5 +1,5 @@
 import type { AuthPayload } from "@/types";
-import { removeItem, setItem } from "@/utils";
+import { setItem } from "@/utils";
 import { authAPI } from "@/utils/api/auth";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
@@ -21,7 +21,3 @@ export const login = createAsyncThunk(
     }
   }
 );
-
-export const logout = createAsyncThunk("auth/logout", async () => {
-  removeItem("accessToken");
-});
