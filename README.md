@@ -80,7 +80,7 @@ Supports role-based access and project/user management for Admin, Manager, and U
 
 - Node.js 18+
 - npm
-- A `.env` file at the project root (a sample provided as `.env`)
+- A `.env` file at the project root (a sample provided as `.env.sample`)
 
 ### Install
 
