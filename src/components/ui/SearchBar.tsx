@@ -16,6 +16,7 @@ const SearchBar = ({
         type="text"
         placeholder="Search..."
         className="border-none pl-8"
+        value={value}
         onChange={(e) => setValue(e.target.value.trim())}
       />
     </div>
